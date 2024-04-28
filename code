@@ -1,0 +1,571 @@
+// Include necessary headers
+#include <windows.h>
+#include <string>
+
+
+// Define placeholder dialog resource identifier
+#define IDD_DIALOG1 101
+
+// Placeholder dialog procedure function
+INT_PTR CALLBACK CourseDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    return 0;
+}
+
+// Declare the Window Procedure
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+// Declare variables for input boxes
+HWND hwndName;
+HWND hwndOK; // Add OK button
+// Declare hwndInputBox as a global variable
+HWND hwndInputBox;
+
+// Function to reset input fields
+void ResetInputFields() {
+    SetWindowText(hwndName, "");
+}
+// Declare the Window Procedure
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+
+// Structure to store studentwise timetable data
+struct StudentTimetable {
+    std::string studentName;
+    std::string section;
+    std::string course;
+    std::string time;
+    std::string day;
+};
+
+// Array to store studentwise timetable data
+const int MAX_STUDENTS = 100; // Maximum number of students
+StudentTimetable studentTimetable[MAX_STUDENTS];
+int numStudents = 0; // Number of students currently stored
+
+// Function to add data to studentwise timetable
+void AddToStudentTimetable(const std::string& studentName, const std::string& section, const std::string& course, const std::string& time, const std::string& day) {
+    if (numStudents < MAX_STUDENTS) {
+        studentTimetable[numStudents++] = {studentName, section, course, time, day};
+    }
+}
+
+struct TeacherTimetable {
+    std::string teacherName;
+    std::string section;
+    std::string course;
+    std::string time;
+    std::string day;
+};
+
+// Array to store studentwise timetable data
+const int MAX_TEACHERS = 100; // Maximum number of students
+TeacherTimetable teacherTimetable[MAX_TEACHERS];
+int numTeachers = 0; // Number of students currently stored
+
+// Function to add data to studentwise timetable
+void AddToTeacherTimetable(const std::string& teacherName, const std::string& section, const std::string& course, const std::string& time, const std::string& day) {
+    if (numTeachers < MAX_STUDENTS) {
+        teacherTimetable[numTeachers++] = {teacherName, section, course, time, day};
+    }
+}
+
+// Structure to store roomwise timetable data
+struct RoomTimetable {
+    std::string roomNumber;
+    std::string section;
+    std::string teacherName;
+    std::string day;
+    std::string time;
+};
+
+// Array to store roomwise timetable data
+const int MAX_ROOMS = 100; // Maximum number of rooms
+RoomTimetable roomTimetable[MAX_ROOMS];
+int numRooms = 0; // Number of rooms currently stored
+
+// Function to add data to roomwise timetable
+void AddToRoomTimetable(const std::string& roomNumber, const std::string& section, const std::string& teacherName, const std::string& day, const std::string& time) {
+    if (numRooms < MAX_ROOMS) {
+        roomTimetable[numRooms++] = {roomNumber, section, teacherName, day, time};
+    }
+}
+
+// Entry point of the application
+// Entry point of the application
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+    // Register the window class
+    const char CLASS_NAME[] = "Timetable Management System";
+
+    WNDCLASS wc = { };
+
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = CLASS_NAME;
+
+    RegisterClass(&wc);
+
+    // Create the window
+    HWND hwnd = CreateWindowEx(
+        0,                              // Optional window styles
+        CLASS_NAME,                     // Window class
+        "Sample Window",                // Window text
+        WS_OVERLAPPEDWINDOW,            // Window style
+
+        // Size and position
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+        NULL,       // Parent window    
+        NULL,       // Menu
+        hInstance,  // Instance handle
+        NULL        // Additional application data
+    );
+
+    if (hwnd == NULL)
+    {
+        return 0;
+    }
+
+    // Create buttons
+    int buttonWidth = 180; // Updated width of buttons
+    int buttonHeight = 50; // Updated height of buttons
+   HWND btnAddStudent = CreateWindow("BUTTON", "Roomwise Timetable", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 10, buttonWidth, 30, hwnd, (HMENU)1, hInstance, NULL);
+HWND btnRemoveStudent = CreateWindow("BUTTON", "Remove Student", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 50, buttonWidth, 30, hwnd, (HMENU)2, hInstance, NULL);
+HWND btnAddTeacher = CreateWindow("BUTTON", "Add Teacher", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 90, buttonWidth, 30, hwnd, (HMENU)3, hInstance, NULL);
+HWND btnRemoveTeacher = CreateWindow("BUTTON", "Remove Teacher", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 130, buttonWidth, 30, hwnd, (HMENU)4, hInstance, NULL);
+HWND btnAddSection = CreateWindow("BUTTON", "Add Section", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 170, buttonWidth, 30, hwnd, (HMENU)5, hInstance, NULL);
+HWND btnRemoveSection = CreateWindow("BUTTON", "Remove Section", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 210, buttonWidth, 30, hwnd, (HMENU)6, hInstance, NULL);
+HWND btnAddClassroom = CreateWindow("BUTTON", "Add Classroom", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 250, buttonWidth, 30, hwnd, (HMENU)7, hInstance, NULL);
+HWND btnRemoveClassroom = CreateWindow("BUTTON", "Remove Classroom", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 290, buttonWidth, 30, hwnd, (HMENU)8, hInstance, NULL);
+HWND btnStudentwiseTimetable = CreateWindow("BUTTON", "Studentwise Timetable", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 10, buttonWidth, 30, hwnd, (HMENU)9, hInstance, NULL);
+HWND btnTeacherwiseTimetable = CreateWindow("BUTTON", "Teacherwise Timetable", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 50, buttonWidth, 30, hwnd, (HMENU)10, hInstance, NULL);
+HWND btnSectionwiseTimetable = CreateWindow("BUTTON", "Sectionwise Timetable", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 90, buttonWidth, 30, hwnd, (HMENU)11, hInstance, NULL);
+HWND btnTimetableDayTime = CreateWindow("BUTTON", "Timetable for specific day and time", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 130, buttonWidth, 30, hwnd, (HMENU)12, hInstance, NULL);
+HWND btnTimetableDay = CreateWindow("BUTTON", "Timetable for specific day", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 170, buttonWidth, 30, hwnd, (HMENU)13, hInstance, NULL);
+HWND btnTimetableStudent = CreateWindow("BUTTON", "Timetable for specific student", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 210, buttonWidth, 30, hwnd, (HMENU)14, hInstance, NULL);
+HWND btnTimetableRoom = CreateWindow("BUTTON", "Timetable for specific room", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 250, buttonWidth, 30, hwnd, (HMENU)15, hInstance, NULL);
+HWND btnArrangeCourse = CreateWindow("BUTTON", "Arrange course", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 290, buttonWidth, 30, hwnd, (HMENU)16, hInstance, NULL);
+HWND btnExit = CreateWindow("BUTTON", "Exit", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 330, buttonWidth, 30, hwnd, (HMENU)17, hInstance, NULL);
+
+    // Show the window
+    ShowWindow(hwnd, nCmdShow);
+    UpdateWindow(hwnd);
+
+    // Run the message loop
+    MSG msg = { };
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return 0;
+}
+
+// Window Procedure
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg) {
+    case WM_COMMAND: {
+        switch (LOWORD(wParam)) {
+    case 1: {
+        // Code for Roomwise Timetable button
+        // Store data for five rooms
+    std::string timetableData = "";
+    
+    // Define arrays for room numbers, sections, teacher names, days, and times
+    std::string roomNumbers[] = {"Room 4-17", "Room 4-18", "Room 4-19", "Lab 4-01", "Lab 4-02"};
+    std::string sections[] = {"A", "B", "C", "A", "C"};
+    std::string teacherNames[] = {"Sir Tamim", "Sir Awais", "Sir Adeel", "Ma'am Joddat'", "Ma'am Sadaf'"};
+    std::string days[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+    std::string times[] = {"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "12:00 PM - 1:00 PM", "1:00 PM - 2:00 PM"};
+    std::string courses[] = {"OOP", "ISE", "Calculus", "OOP Lab", "CP Lab"};
+    
+    // Loop through each room and their data
+    for (int i = 0; i < 5; ++i) {
+        std::string roomNumber = roomNumbers[i];
+        std::string section = sections[i];
+        std::string teacherName = teacherNames[i];
+        std::string day = days[i];
+        std::string time = times[i];
+        std::string course = courses[i]; // Fix: Get the corresponding course for each room
+
+        // Add room data to the timetable
+        timetableData += "Room Number: " + roomNumber + "\n";
+        timetableData += "Section: " + section + "\n";
+        timetableData += "Teacher Name: " + teacherName + "\n";
+        timetableData += "Course: " + course + "\n\n"; // Fix: Use the individual course, not the whole array
+        timetableData += "Day: " + day + "\n";
+        timetableData += "Time: " + time + "\n\n";
+
+        // Add each room's timetable data to the array
+        AddToRoomTimetable(roomNumber,section,teacherName,day,time);
+    }
+
+    // Display the timetable data for all rooms in a message box
+    MessageBox(hwnd, timetableData.c_str(), "Roomwise Timetable", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+case 2: {
+    // Calculate the center of the screen
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+    int centerX = (rc.right - rc.left) / 2;
+    int centerY = (rc.bottom - rc.top) / 2;
+
+    // Size of the input boxes
+    int inputBoxWidth = 200;
+    int inputBoxHeight = 25;
+
+    // Calculate the position of the input boxes
+    int posX = centerX - (inputBoxWidth / 2);
+    int posY = centerY - (inputBoxHeight / 2);
+
+    // Create the label for the input box
+    HWND hwndNameLabel = CreateWindow("STATIC", "Name:", WS_VISIBLE | WS_CHILD, posX, posY - 30, 100, 20, hwnd, NULL, NULL, NULL);
+
+    // Create the input box
+    HWND hwndNameInput = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, posX, posY, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    // Set focus on the input box
+    SetFocus(hwndNameInput);
+
+    break;
+}
+
+case 3: {
+    // Code for Add Teacher button
+    // Create input boxes for entering teacher information
+    int inputBoxWidth = 200;
+    int inputBoxHeight = 25;
+    HWND hwndNameLabel = CreateWindow("STATIC", "Name:", WS_VISIBLE | WS_CHILD, 20, 50, 100, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndNameInput = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 120, 50, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    HWND hwndCourseLabel = CreateWindow("STATIC", "Course:", WS_VISIBLE | WS_CHILD, 20, 80, 100, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndCourseInput = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 120, 80, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    HWND hwndSectionLabel = CreateWindow("STATIC", "Section:", WS_VISIBLE | WS_CHILD, 20, 110, 100, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndSectionInput = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 120, 110, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    HWND hwndDayLabel = CreateWindow("STATIC", "Day:", WS_VISIBLE | WS_CHILD, 20, 140, 100, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndDayInput = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 120, 140, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    HWND hwndTimeLabel = CreateWindow("STATIC", "Time:", WS_VISIBLE | WS_CHILD, 20, 170, 100, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndTimeInput = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 120, 170, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    // Create an OK button to confirm input
+    int buttonWidth = 100;
+    int buttonHeight = 30;
+    HWND hwndOKButton = CreateWindow("BUTTON", "OK", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 120, 210, buttonWidth, buttonHeight, hwnd, (HMENU)18, NULL, NULL);
+
+    // Focus on the first input box
+    SetFocus(hwndNameInput);
+    break;
+}
+
+    case 4: {
+        // Code for Remove Teacher button
+        MessageBox(hwnd, "Remove Teacher Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 5: {
+        // Code for Add Section button
+        MessageBox(hwnd, "Add Section Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 6: {
+        // Code for Remove Section button
+        MessageBox(hwnd, "Remove Section Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 7: {
+        // Code for Add Classroom button
+        MessageBox(hwnd, "Add Classroom Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 8: {
+        // Code for Remove Classroom button
+        MessageBox(hwnd, "Remove Classroom Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 9: {
+        // Code for Studentwise Timetable button
+        // Store data for five students
+    std::string timetableData = "";
+    
+    // Define arrays for student names, sections, courses, times, and days
+    std::string studentNames[] = {"Madeiha", "Emaan", "Afshan", "Malaika", "Shumail"};
+    std::string studentSections[] = {"A", "B", "C", "A", "C"};
+    std::string studentCourses[5][4] = {{"CF", "FE", "Calculus", "AP"}, 
+                                        {"OOP", "IS", "ECS", "AP"}, 
+                                        {"CP", "DS", "LA", "OOP"}, 
+                                        {"CP", "CF", "Algebra", "FE"}, 
+                                        {"ISE", "OOP Lab", "LA", "FE"}};
+    std::string studentTimes[5][4] = {{"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "12:00 PM - 1:00 PM"}, 
+                                        {"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "1:00 PM - 2:00 PM"}, 
+                                        {"10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "1:00 PM - 2:00 PM", "2:00 PM - 3:00 PM"}, 
+                                        {"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "12:00 PM - 1:00 PM", "1:00 PM - 2:00 PM"}, 
+                                        {"11:00 AM - 12:00 PM", "12:00 PM - 1:00 PM", "2:00 PM - 3:00 PM", "3:00 PM - 4:00 PM"}};
+    std::string studentDays[5][4] = {{"Monday", "Tuesday", "Wednesday", "Thursday"}, 
+                                        {"Monday", "Tuesday", "Wednesday", "Friday"}, 
+                                        {"Tuesday", "Wednesday", "Thursday", "Friday"}, 
+                                        {"Monday", "Tuesday", "Thursday", "Friday"}, 
+                                        {"Wednesday", "Thursday", "Friday", "Saturday"}};
+
+    // Loop through each student and their courses
+    for (int i = 0; i < 5; ++i) {
+        std::string studentName = studentNames[i];
+        std::string section = studentSections[i];
+        timetableData += "Student Name: " + studentName + "\n";
+        timetableData += "Section: " + section + "\n";
+
+        std::string courses;
+        std::string times;
+        std::string days;
+
+        // Loop through each course for the current student
+        for (int j = 0; j < 4; ++j) {
+            courses += studentCourses[i][j];
+            times += studentTimes[i][j];
+            days += studentDays[i][j];
+
+            // Add comma separators
+            if (j != 3) {
+                courses += ", ";
+                times += ", ";
+                days += ", ";
+            }
+        }
+
+        // Add the course data to the timetable
+        timetableData += "Courses: " + courses + "\n";
+        timetableData += "Times: " + times + "\n";
+        timetableData += "Days: " + days + "\n\n";
+
+        // Add each student's timetable data to the array
+        // Note: Since the structure of the AddToStudentTimetable function is not provided, it's assumed it adds each course separately.
+        for (int j = 0; j < 4; ++j) {
+            AddToStudentTimetable(studentName, section, studentCourses[i][j], studentTimes[i][j], studentDays[i][j]);
+        }
+    }
+
+    // Display the timetable data for all students in a message box
+    MessageBox(hwnd, timetableData.c_str(), "Studentwise Timetable", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 10: {
+        // Code for Teacherwise Timetable button
+        // Store data for five teachers
+    std::string timetableData = "";
+    
+    // Define arrays for teacher names, sections, courses, times, and days
+    std::string teacherNames[] = {"Sir Tamim", "Sir Awais", "Sir Adeel", "Ma'am Joddat'", "Ma'am Sadaf'"};
+    std::string teacherSections[] = {"A", "B", "B", "A", "C"};
+    std::string teacherCourses[5][3] = {{"OOP", "FE","AP"}, 
+                                        {"ISE", "IS", "ECS"}, 
+                                        {"CP", "Calculus","OOP Lab"}, 
+                                        {"CP", "CF", "Algebra"}, 
+                                        {"DS", "CP Lab","FE"}};
+    std::string teacherTimes[5][3] = {{"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM"}, 
+                                        {"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM"}, 
+                                        {"10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "1:00 PM - 2:00 PM"}, 
+                                        {"9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "12:00 PM - 1:00 PM"}, 
+                                        {"11:00 AM - 12:00 PM", "12:00 PM - 1:00 PM", "2:00 PM - 3:00 PM"}};
+    std::string teacherDays[5][3] = {{"Monday", "Tuesday", "Wednesday"}, 
+                                        {"Monday", "Tuesday", "Wednesday"}, 
+                                        {"Tuesday", "Wednesday", "Thursday"}, 
+                                        {"Monday", "Tuesday", "Thursday"}, 
+                                        {"Wednesday", "Thursday", "Friday"}};
+
+    // Loop through each student and their courses
+    for (int i = 0; i < 5; ++i) {
+        std::string teacherName = teacherNames[i];
+        std::string section = teacherSections[i];
+        timetableData += "Teacher Name: " + teacherName + "\n";
+        timetableData += "Section: " + section + "\n";
+
+        std::string courses;
+        std::string times;
+        std::string days;
+
+        // Loop through each course for the current student
+        for (int j = 0; j < 3; ++j) {
+            courses += teacherCourses[i][j];
+            times += teacherTimes[i][j];
+            days += teacherDays[i][j];
+
+            // Add comma separators
+            if (j != 2) {
+                courses += ", ";
+                times += ", ";
+                days += ", ";
+            }
+        }
+
+        // Add the course data to the timetable
+        timetableData += "Courses: " + courses + "\n";
+        timetableData += "Times: " + times + "\n";
+        timetableData += "Days: " + days + "\n\n";
+
+        // Add each student's timetable data to the array
+        // Note: Since the structure of the AddToStudentTimetable function is not provided, it's assumed it adds each course separately.
+        for (int j = 0; j < 3; ++j) {
+            AddToTeacherTimetable(teacherName, section, teacherCourses[i][j], teacherTimes[i][j], teacherDays[i][j]);
+        }
+    }
+
+    // Display the timetable data for all students in a message box
+    MessageBox(hwnd, timetableData.c_str(), "Teacherwise Timetable", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+case 11: {
+    // Code for Sectionwise Timetable button
+    // Store data for three sections
+    std::string timetableData = "";
+
+    // Define arrays for section names, teacher names, courses, times, and days
+    std::string sections[] = {"A", "B", "C"};
+    std::string teacherNames[3][3] = {{"Sir Tamim, Ma'am Joddat', Ma'am Sadaf'"},
+                                       {"Sir Adeel, Ma'am Joddat', Ma'am Sadaf'"},
+                                       {"Sir Tamim, Sir Adeel, Ma'am Joddat'"}};
+    std::string courses[3][3][4] = {{{"OOP, FE, Calculus, AP"},
+                                     {"ISE, OOP Lab, LA, FE"},
+                                     {"CP, Calculus, OOP Lab, FE"}},
+                                    {{"ISE, IS, ECS, AP"},
+                                     {"CF, FE, Calculus, AP"},
+                                     {"ISE, IS, LA, OOP"}},
+                                    {{"OOP, FE, Calculus, AP"},
+                                     {"ISE, OOP Lab, LA, FE"},
+                                     {"CP, Calculus, OOP Lab, FE"}}};
+    std::string times[3][3][4] = {{{"9:00 AM - 10:00 AM, 10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 12:00 PM - 1:00 PM"},
+                                    {"10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 1:00 PM - 2:00 PM, 2:00 PM - 3:00 PM"},
+                                    {"9:00 AM - 10:00 AM, 10:00 AM - 11:00 AM, 12:00 PM - 1:00 PM, 1:00 PM - 2:00 PM"}},
+                                   {{"9:00 AM - 10:00 AM, 10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 12:00 PM - 1:00 PM"},
+                                    {"9:00 AM - 10:00 AM, 10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 1:00 PM - 2:00 PM"},
+                                    {"10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 1:00 PM - 2:00 PM, 2:00 PM - 3:00 PM"}},
+                                   {{"9:00 AM - 10:00 AM, 10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 12:00 PM - 1:00 PM"},
+                                    {"10:00 AM - 11:00 AM, 11:00 AM - 12:00 PM, 1:00 PM - 2:00 PM, 2:00 PM - 3:00 PM"},
+                                    {"9:00 AM - 10:00 AM, 10:00 AM - 11:00 AM, 12:00 PM - 1:00 PM, 1:00 PM - 2:00 PM"}}};
+    std::string days[3][3][4] = {{{"Monday, Tuesday, Wednesday, Thursday"},
+                                   {"Tuesday, Wednesday, Thursday, Friday"},
+                                   {"Monday, Tuesday, Thursday, Friday"}},
+                                  {{"Monday, Tuesday, Wednesday, Thursday"},
+                                   {"Monday, Tuesday, Wednesday, Thursday"},
+                                   {"Tuesday, Wednesday, Thursday, Friday"}},
+                                  {{"Monday, Tuesday, Wednesday, Thursday"},
+                                   {"Tuesday, Wednesday, Thursday, Friday"},
+                                   {"Monday, Tuesday, Thursday, Friday"}}};
+
+    // Loop through each section and their data
+    for (int i = 0; i < 3; ++i) {
+        std::string section = sections[i];
+
+        // Loop through each teacher and their courses
+        for (int j = 0; j < 1; ++j) {
+            std::string teacherName = teacherNames[i][j];
+
+            // Loop through each course for the current teacher
+            for (int k = 0; k < 1; ++k) {
+                std::string course = courses[i][j][k];
+                std::string time = times[i][j][k];
+                std::string day = days[i][j][k];
+
+                // Add course data to the timetable
+                timetableData += "Section: " + section + "\n";
+                timetableData += "Teacher Name: " + teacherName + "\n";
+                timetableData += "Course: " + course + "\n";
+                timetableData += "Time: " + time + "\n";
+                timetableData += "Day: " + day + "\n\n";
+
+                // Add each course's timetable data to the array
+                AddToTeacherTimetable(teacherName, section, course, time, day);
+            }
+        }
+    }
+
+    // Display the timetable data for all sections in a message box
+    MessageBox(hwnd, timetableData.c_str(), "Sectionwise Timetable", MB_OK | MB_ICONINFORMATION);
+    break;
+}
+
+
+    case 12: {
+        // Code for Timetable for specific day and time button
+         MessageBox(hwnd, "Timetable for specific day and time Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+    case 13: {
+        // Code for Timetable for specific day button
+         MessageBox(hwnd, "Timetable for specific day Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+   case 14: {
+    // Code for Timetable for specific student button
+    // Create input box for entering student name
+    int inputBoxWidth = 200;
+    int inputBoxHeight = 25;
+    int posX = 20;
+    int posY = 50;
+    HWND hwndInputLabel = CreateWindow("STATIC", "Enter Student Name:", WS_VISIBLE | WS_CHILD, posX, posY, 150, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndInputBox = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, posX + 170, posY, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+    HWND hwndOKButton = CreateWindow("BUTTON", "OK", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, posX + 380, posY, 60, 25, hwnd, (HMENU)18, NULL, NULL);
+
+    // Set focus on the input box
+    SetFocus(hwndInputBox);
+    break;
+}
+
+    case 15: {
+        // Code for Timetable for specific room button
+        MessageBox(hwnd, "Timetable for specific room Clicked!", "Message", MB_OK | MB_ICONINFORMATION);
+        break;
+    }
+  case 16: {
+    // Code for Arrange Course button
+    // Create input boxes for entering course names
+    int inputBoxWidth = 200;
+    int inputBoxHeight = 25;
+    HWND hwndCourseLabel1 = CreateWindow("STATIC", "First Course Name:", WS_VISIBLE | WS_CHILD, 20, 50, 150, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndCourseInput1 = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 180, 50, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+    HWND hwndCourseLabel2 = CreateWindow("STATIC", "Second Course Name:", WS_VISIBLE | WS_CHILD, 20, 90, 150, 20, hwnd, NULL, NULL, NULL);
+    HWND hwndCourseInput2 = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 180, 90, inputBoxWidth, inputBoxHeight, hwnd, NULL, NULL, NULL);
+
+    // Create an OK button to confirm input
+    int buttonWidth = 100;
+    int buttonHeight = 30;
+    HWND hwndOKButton = CreateWindow("BUTTON", "OK", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 180, 130, buttonWidth, buttonHeight, hwnd, (HMENU)19, NULL, NULL);
+
+    // Focus on the first input box
+    SetFocus(hwndCourseInput1);
+    break;
+}
+
+   case 17: {
+    // Code for Exit button
+    int result = MessageBox(hwnd, "Are you sure you want to quit?", "Confirmation", MB_YESNO | MB_ICONQUESTION);
+    if (result == IDYES) {
+        // User clicked Yes, so exit the application
+        PostQuitMessage(0);
+    }
+    break;
+}
+
+            }
+            break;
+        }
+case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+            FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+            EndPaint(hwnd, &ps);
+            break;
+        }
+    default:
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    return 0;
+}
